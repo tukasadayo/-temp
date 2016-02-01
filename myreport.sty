@@ -1,0 +1,243 @@
+%
+% myreport.sty: 
+%
+%		Feb.14.92. Neco.
+%		ＬａＴｅＸ美文書作成入門　奥村晴彦　技術評論社
+%
+\input{jreport.sty}
+%
+
+\parindent 1zw
+
+\def\@makechapterhead#1{% 章の番号、名前を出力する
+  \vspace*{5pt}%
+  {\raggedright   % 右端は揃える必要なし
+   \parindent=0pt % 改行の頭下げなし
+   \ifnum \c@secnumdepth>\m@ne
+	% もし secnumdepth カウンタの値が -1 より大なら
+     \LARGE\bf\@chapapp{\thechapter}%\par % 第何章
+%    \vskip 10pt % 縦の空き 10pt
+     \hskip 1zw
+   \fi
+   \LARGE \bf #1\par\nobreak
+   \vskip 10pt}}
+
+\def\@makeschapterhead#1{% 章名だけ（番号なし）
+  \vspace*{5pt}%
+  {\parindent=0pt \raggedright
+   \Huge\bf #1\par\nobreak
+   \vskip 20pt}}
+
+\def\chapter{% 章
+  \cleardoublepage % 奇数ページ起こし
+  \thispagestyle{plain}% このページは柱なし
+  \global\@topnum=\z@ % このページ上に図入れず
+  \@afterindenttrue % 最初の段落を頭下げする
+% \@afterindentfalse % 最初の段落を頭下げしない
+    % 頭下げしないなら \atfterindentfalse に直す
+  \secdef\@chapter\@schapter} % 直後の * の有無に従って分岐
+
+\def\@chapter[#1]#2{% 直後に * がない場合
+  \ifnum \c@secnumdepth>\m@ne
+      % もし secnumdepth カウンタの値が -1 より大なら
+    \refstepcounter{chapter}% カウンタ chapter を増す
+    \typeout{\@chapapp{\thechapter}}% 章番号出力
+    \addcontentsline{toc}{chapter}{% .toc ファイルに出力
+      \protect\numberline{\thechapter}#1}%
+  \else
+    \addcontentsline{toc}{chapter}{#1}% 同上（番号なし）
+  \fi
+  \chaptermark{#1}% 柱に章名を出力
+  \addtocontents{lof}{\protect\addvspace{10pt}}%
+    % .lof (list of figures) ファイルに空きを入れる
+  \addtocontents{lot}{\protect\addvspace{10pt}}%
+    % .lot (list of tables) ファイルに空きを入れる
+  \if@twocolumn % ２段組なら
+    \@topnewpage[\@makechapterhead{#2}]%
+  \else
+    \@makechapterhead{#2}%
+    \@afterheading % 見出しの後の処理
+  \fi}
+
+\def\@schapter#1{% \chapter* の処理
+  \if@twocolumn
+    \@topnewpage[@makeschapterhead{#1}]%
+  \else
+    \@makeschapterhead{#1}%
+    \@afterheading
+  \fi}
+
+\def\section{%
+  \@startsection%
+    {section}% セクション名は section
+    {1}% レベル（レベル<=secnumdepthのときだけ番号を出力）
+    {\z@}% ページ左端から見出しまでの距離（負でもいい）
+    {3.5ex plus 1ex minus .2ex}% 見出し上の空き
+      % これを -3.5ex plus -1ex minus -.2ex とすれば
+      % 見出し下の最初の段落を頭下げしない
+    {2.3ex plus .2ex}% 見出し下の空き（負なら見出しの後で
+      % 改行せずにその絶対値だけ右に入ったところから本文）
+    {\Large\bf}}% 見出しの文字選択
+\def\subsection{%
+  \@startsection{subsection}{2}{\z@}%
+    {3.25ex plus 1ex minus .2ex}{1.5ex plus .2ex}{\large\bf}}
+\def\subsubsection{%
+  \@startsection{subsubsection}{3}{\z@}%
+    {3.25ex plus 1ex minus .2ex}{1.5ex plus .2ex}{\normalsize\bf}}
+\def\paragraph{%
+  \@startsection{paragraph}{4}{\z@}%
+    {3.25ex plus 1ex minus .2ex}{-1em}{\normalsize\bf}}
+\def\subparagraph{%
+  \@startsection{subparagraph}{4}{parindent}%
+    {3.25ex plus 1ex minus .2ex}{-1em}{\normalsize\bf}}
+
+\def\thechapter{\arabic{chapter}} % 章は 1, 2, 3, ...
+\def\@chapapp#1{第#1章} % 章(chapter)の番号付け
+
+\def\appendix{% \chapter の出力を　「付録A」などに変更する命令
+%\par % 改段　(空行と同じ効果をもつ)
+　\setcounter{chapter}{0}% 章番号を 0 に戻す
+　\setcounter{section}{0}% 節番号を 0 に戻す
+  \def\@chapapp{付録}%　「章」ではなく「付録」に
+  \def\thechapter{\Alph{chapter}}}% 番号は A, B, ...
+
+\def\eqnarray{% 数式の並び
+  \stepcounter{equation}%
+  \let\@currentlabel=\theequation
+  \global\@eqnswtrue
+  \global\@eqcnt\z@
+  \tabskip\@centering
+  \let\\=\@eqncr
+  $$\halign to \displaywidth\bgroup\@eqnsel\hskip\@centering
+  $\displaystyle\tabskip\z@{##}$&\global\@eqcnt\@ne
+  \hfil$\displaystyle{{}##{}}$\hfil
+  &\global\@eqcnt\tw@$\displaystyle\tabskip\z@{##}$\hfil
+  \tabskip\@centering&\llap{##}\tabskip\z@\cr}
+
+\def\mbold#1{% ベクトル・行列の太字
+  \mbox{\boldmath{$#1$}}}
+
+\def\mbold#1{%
+  \mbox{\boldmath{$#1$}}}
+
+\def\cdeg{%
+	${}^\circ\mbox{C}$\ }
+
+%\def\step{%
+%  \addtocounter{stepnumber}{1}%
+%  \parindent=0pt %
+%  \par%
+%  {\bf Step \arabic{stepnumber}.}%
+%  \hspace{1em}}
+\def\step{\item}
+\newcounter{stepnumber}
+%\newenvironment{stepping}{\usecounter{stepnumber}}{}%
+
+\def\stepping{\ifnum \@enumdepth >3 \@toodeep\else
+      \advance\@enumdepth \@ne 
+      \edef\@enumctr{enum\romannumeral\the\@enumdepth}\list
+      {\csname label\@enumctr\endcsname}{\itemsep\z@\usecounter
+%        {\@enumctr}\def\makelabel##1{\hss\llap{\bf Step ##1}}}\fi}
+        {\@enumctr}\def\makelabel##1{ \bf Step ##1}}\fi}
+\let\endstepping =\endlist
+
+\def\@cite#1#2{$^{{\scriptsize {#1\if@tempswa , #2\fi}})}$}
+\def\@biblabel#1{#1\hfill}
+\def\thebibliography#1{\chapter*{参考文献\@mkboth
+ {参考文献}{参考文献}}\list
+ {\arabic{enumi})}{\settowidth\labelwidth{[#1]}\leftmargin\labelwidth
+ \advance\leftmargin\labelsep
+ \usecounter{enumi}}
+ \def\newblock{\hskip .11em plus .33em minus .07em}
+ \sloppy
+ \sfcode`\.=1000\relax}
+\let\endthebibliography=\endlist
+
+\long\def\@makecaption#1#2{% 図・表の見出しを作る命令
+   \vskip 15\p@			% 10pt 下に進む 
+   \setbox\@tempboxa\hbox{{\large #1\ \ #2}}% 「図1: 何々」の形の箱を作る
+   \ifdim \wd\@tempboxa >\hsize % 箱が 1 行に入りきらないなら
+     \begin{list}{#1}{
+       \leftmargin 5em \itemindent 0ex \labelsep 1ex%
+       \labelwidth \leftmargin%
+       \addtolength{\labelwidth}{-\itemindent}%
+       \addtolength{\labelwidth}{-\labelsep}%
+       \rightmargin=\leftmargini%
+       \addtolength{\rightmargin}{-\itemindent}}%
+       \item #2		% 通常の段組として組む（うそ）
+     \end{list}\par%
+   \else			% そうでなければ
+       \hbox to\hsize{\hfil\box\@tempboxa\hfil}% 箱を中央揃えで出力  
+   \fi}
+%
+%
+%
+% ronbun.tex の上部で定義されていた部分をスタイルに移動
+%%%
+%用紙サイズの再定義
+\setlength{\headheight}{0.0cm}
+\setlength{\textwidth}{15cm}
+\setlength{\textheight}{24.5cm}
+\setlength{\footheight}{-1.0cm}
+%%%
+\def\descriptionlabel#1{\hspace\labelsep \bf #1}
+\def\description{\list{}{%
+  \parsep\z@ plus 1pt minus 2pt
+  \itemsep\z@ \labelwidth\z@ \itemindent-\leftmargin
+ \let\makelabel\descriptionlabel}}
+\let\enddescription\endlist
+\def\enumerate{\ifnum \@enumdepth >3 \@toodeep\else
+      \advance\@enumdepth \@ne 
+      \edef\@enumctr{enum\romannumeral\the\@enumdepth}\list
+      {\csname label\@enumctr\endcsname}{\usecounter
+        {\@enumctr}\parsep\z@ plus 1pt minus 2pt
+        \parsep\z@ plus 1pt minus 2pt
+        \itemsep\z@\def\makelabel##1{\hss\llap{##1}}}\fi}
+\let\endenumerate =\endlist
+
+\def\itemize{\ifnum \@itemdepth >3 \@toodeep\else \advance\@itemdepth \@ne
+\edef\@itemitem{labelitem\romannumeral\the\@itemdepth}%
+\list{\csname\@itemitem\endcsname}%
+  {\itemsep\z@\def\makelabel##1{\hss\llap{##1}}}\fi}
+\let\enditemize =\endlist
+
+\def\listoffigtables{\@restonecolfalse\if@twocolumn\@restonecoltrue\onecolumn
+ \fi\chapter*{図 表 目 次\@mkboth
+ {図 表 目 次}{図 表 目 次}}
+ \@starttoc{lof}\@starttoc{lot}\if@restonecol\twocolumn
+ \fi}
+
+\def\listoffigures{\@restonecolfalse\if@twocolumn\@restonecoltrue\onecolumn
+ \fi\chapter*{\large ~~~~~~~~~Figure list}\@starttoc{lof}\if@restonecol\twocolumn
+ \fi}
+%
+%
+%マクロの定義
+\def\fnum@figure{Fig.~\thefigure}
+\def\fnum@table{Table~\thetable}
+\def\reffig#1{{\bf Fig.~\ref{fig:#1}}}
+\def\reftbl#1{{\bf Tbl.~\ref{tbl:#1}}}
+\def\refeqn#1{eq.~(\ref{eqn:#1})}
+\def\refchap#1{第~\ref{chap:#1} 章}
+\def\refsec#1{\ref{sec:#1}節}
+
+\def\labfig#1{~\label{fig:#1}}
+\def\labtbl#1{~\label{lab:#1}}
+\def\labeqn#1{~\label{eqn:#1}}
+\def\labchap#1{~\label{chap:#1}}
+\def\labsec#1{~\label{sec:#1}}
+
+\def\myfig#1#2{%
+    \begin{figure}
+    \begin{center}%
+      \psbox{#1}%
+    \end{center}%
+    \caption{#2}\labfig{#1}%
+  \end{figure}}
+
+\def\diag{\mbox{diag}}
+\def\Copy{\raisebox{1.2ex}{\mysimbol \char '162}~}
+\def\Trans{\raisebox{0.85ex}{\mymatha \char '124}\,}
+\def\GAMMA{\mbox{\mymathb \char '000}}
+\def\Bold#1{\mbox{\boldmath{$#1$}}}
+\def\TIMESTAMP#1{\hspace{\fill}#1~~~~~~~~~}
